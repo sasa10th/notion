@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clock</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --fg: #000000;
+      --muted: #999999;
+      --line: #000000;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #000000;
+        --fg: #ffffff;
+        --muted: #666666;
+        --line: #ffffff;
+      }
+    }
+
+    [data-theme="light"] {
+      --bg: #ffffff;
+      --fg: #000000;
+      --muted: #999999;
+      --line: #000000;
+    }
+
+    [data-theme="dark"] {
+      --bg: #000000;
+      --fg: #ffffff;
+      --muted: #666666;
+      --line: #ffffff;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--fg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.3s, color 0.3s;
+      overflow: hidden;
+    }
+
+    .wrapper {
+      width: 100%;
+      text-align: center;
+      padding: 0 4vw;
+    }
+
+    .label {
+      font-family: 'Courier New', monospace;
+      font-size: clamp(10px, 1.5vw, 16px);
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 2vh;
+    }
+
+    .rule {
+      width: 100%;
+      height: 1px;
+      background: var(--line);
+      opacity: 0.15;
+      margin: 2vh 0;
+    }
+
+    .time {
+      font-family: 'Bebas Neue', Impact, sans-serif;
+      font-size: clamp(60px, 20vw, 260px);
+      line-height: 0.9;
+      letter-spacing: 0;
+      color: var(--fg);
+      font-weight: 400;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .time .digit {
+      display: inline-block;
+      width: 2.1ch;
+      text-align: center;
+    }
+
+    .time .colon {
+      display: inline-block;
+      animation: blink 1s step-end infinite;
+      margin: 0 -0.01em;
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.15;
+      }
+    }
+
+    .date-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(12px, 3vw, 40px);
+      margin-top: 3vh;
+    }
+
+    .date {
+      font-family: 'Courier New', monospace;
+      font-size: clamp(12px, 2.5vw, 28px);
+      letter-spacing: 0.15em;
+      color: var(--fg);
+    }
+
+    .weekday {
+      font-family: 'Bebas Neue', Impact, sans-serif;
+      font-size: clamp(24px, 6vw, 80px);
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      line-height: 1;
+    }
+
+    .toggle {
+      position: fixed;
+      top: 20px;
+      right: 24px;
+      background: none;
+      border: 1px solid var(--line);
+      color: var(--fg);
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      padding: 6px 12px;
+      cursor: pointer;
+      opacity: 0.4;
+      transition: opacity 0.2s;
+    }
+
+    .toggle:hover {
+      opacity: 1;
+    }
+  </style>
+</head>
+
+<body>
+  <button class="toggle" id="toggle" onclick="cycleTheme()">●</button>
+
+  <div class="wrapper">
+    <div class="label" id="label">--:--:--</div>
+    <div class="rule"></div>
+    <div class="time" id="time">
+      <span id="h" class="digit">00</span><span class="colon">:</span><span id="m" class="digit">00</span><span
+        class="colon">:</span><span id="s" class="digit">00</span>
+    </div>
+    <div class="rule"></div>
+    <div class="date-row">
+      <div class="date" id="date">0000. 00. 00.</div>
+      <div class="weekday" id="weekday">---</div>
+    </div>
+  </div>
+
+  <script>
+    const weekdays = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+    const weekdaysKo = ["일", "월", "화", "수", "목", "금", "토"];
+
+    function updateClock() {
+      const now = new Date();
+      const h = String(now.getHours()).padStart(2, "0");
+      const m = String(now.getMinutes()).padStart(2, "0");
+      const s = String(now.getSeconds()).padStart(2, "0");
+      document.getElementById("h").textContent = h;
+      document.getElementById("m").textContent = m;
+      document.getElementById("s").textContent = s;
+
+      const yr = now.getFullYear();
+      const mo = now.getMonth() + 1;
+      const d = now.getDate();
+      const w = now.getDay();
+      document.getElementById("date").textContent =
+        `${yr}. ${String(mo).padStart(2, "0")}. ${String(d).padStart(2, "0")}.`;
+      document.getElementById("weekday").textContent = weekdays[w];
+      document.getElementById("label").textContent =
+        `${h} : ${m} : ${s}`;
+    }
+
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    const themes = ["auto", "light", "dark"];
+    let ti = 0;
+
+    function cycleTheme() {
+      ti = (ti + 1) % themes.length;
+      const t = themes[ti];
+      const btn = document.getElementById("toggle");
+      if (t === "auto") {
+        document.documentElement.removeAttribute("data-theme");
+        btn.textContent = "●";
+      } else if (t === "light") {
+        document.documentElement.setAttribute("data-theme", "light");
+        btn.textContent = "○";
+      } else {
+        document.documentElement.setAttribute("data-theme", "dark");
+        btn.textContent = "◉";
+      }
+    }
+  </script>
+</body>
+
+</html>
